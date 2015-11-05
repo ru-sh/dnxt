@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0-*",
+  "description": "Dnxt.Tests Console Application",
+  "authors": [ "Ruslan" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "dependencies": {
+    "NUnit": "3.0.0-beta-5",
+    "Dnxt": "1.0.0-*"
+  },
+
+  "commands": {
+    "Dnxt.Tests": "Dnxt.Tests"
+  },
+
+  "frameworks": {
+    "dnx451": { }
+  }
+}
