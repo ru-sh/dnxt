@@ -6,9 +6,4 @@ namespace Dnxt.Env
     {
         DateTime UtcNow { get; }
     }
-
-    public class DefaultDateTimeProvider : IDateTimeProvider
-    {
-        public DateTime UtcNow => DateTime.UtcNow;
-    }
 }

@@ -21,9 +21,9 @@ namespace Dnxt
                 var tasks = routers.Select(router => router.TryGetMatchingHandler(arg));
                 var actions = await Task.WhenAll(tasks);
                 var matched = actions.FirstOrDefault(action => action != null);
-                var s = string.Join(", ", actions.Select((action, i) => $"{i} {action != null}"));
-                Console.WriteLine($"Matched: {s}");
-                Console.WriteLine($"Matched: {matched != null}");
+                //var s = string.Join(", ", actions.Select((action, i) => $"{i} {action != null}"));
+                //Console.WriteLine($"Matched: {s}");
+                //Console.WriteLine($"Matched: {matched != null}");
                 return matched;
             };
         }

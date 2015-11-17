@@ -72,7 +72,7 @@ namespace Dnxt.Logging
 
         private void Log(LogEntryType type, string message, object info, string filePath, int line, string memberName, string[] categories = null)
         {
-            var entry = new LogEntry(_dateTime.UtcNow, message, type, _logId, info, categories);
+            var entry = new LogEntry(_dateTime.UtcNow, message, type, _logId, info, categories, filePath, line, memberName);
             _observer.OnNext(entry);
         }
     }

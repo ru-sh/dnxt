@@ -7,7 +7,6 @@
   "licenseUrl": "",
 
   "dependencies": {
-    "Microsoft.AspNet.FileProviders.Physical": "1.0.0-beta8"
   },
 
   "frameworks": {
