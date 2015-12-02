@@ -1,11 +1,9 @@
 ﻿using System;
-using System.IO;
-using Dnxt.Env;
 using Dnxt.Logging;
 using Dnxt.Properties;
 using JetBrains.Annotations;
 
-namespace Dnxt
+namespace Dnxt.Environmenting
 {
     public class Environment : IEnvironment, IDisposable
     {

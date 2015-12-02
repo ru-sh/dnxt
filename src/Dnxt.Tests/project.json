@@ -8,6 +8,7 @@
 
   "dependencies": {
     "NUnit": "3.0.0",
+    "Dnxt.Messaging.RabbitMq": "1.0.0-*",
     "Dnxt": "1.0.0-*"
   },
 
@@ -16,7 +17,15 @@
   },
 
   "frameworks": {
-    "dnx451": { },
-    "dnxcore50": { }
+    "dnx451": {
+      "dependencies": {
+        "RabbitMQ.Client": "3.5.6"
+      }
+    },
+    "dnxcore50": {
+      "dependencies": {
+        "RabbitMQ.Client.CoreClrUnofficial": "3.5.6"
+      }
+    }
   }
 }

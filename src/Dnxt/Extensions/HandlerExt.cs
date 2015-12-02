@@ -1,7 +1,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Dnxt
+namespace Dnxt.Extensions
 {
     public static class Ext
     {

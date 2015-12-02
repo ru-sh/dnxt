@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Dnxt.Env;
+using Dnxt.Environmenting;
 using JetBrains.Annotations;
 
 namespace Dnxt.Logging

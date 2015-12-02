@@ -1,6 +1,4 @@
-using System;
-
-namespace Dnxt.RxAsync
+namespace Dnxt.RxAsync.Subjects
 {
     public interface IAsyncSubject<T> : IAsyncSubject<T, T>
     {

@@ -3,7 +3,7 @@
 
   "dependencies": {
     "Dnxt": "1.0.0-*",
-    "Microsoft.AspNet.Http": "1.0.0-*"
+    "Microsoft.AspNet.Http": "1.0.0-beta8"
   },
 
   "frameworks": {

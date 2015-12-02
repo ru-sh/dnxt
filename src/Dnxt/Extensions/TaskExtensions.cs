@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Dnxt.Logging;
 using JetBrains.Annotations;
 
-namespace Dnxt
+namespace Dnxt.Extensions
 {
     public static class TaskExtensions
     {

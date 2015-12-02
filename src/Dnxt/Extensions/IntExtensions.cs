@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dnxt
+namespace Dnxt.Extensions
 {
     public static class IntExtensions
     {

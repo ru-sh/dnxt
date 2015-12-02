@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dnxt.Env
+namespace Dnxt.Environmenting
 {
     public interface IDateTimeProvider
     {
