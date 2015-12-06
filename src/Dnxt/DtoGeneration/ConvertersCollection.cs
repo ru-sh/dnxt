@@ -7,7 +7,7 @@ namespace Dnxt.DtoGeneration
     public class ConvertersCollection<TB>
     {
         [NotNull]
-        readonly ConcurrentDictionary<Type, Tuple<Converter<TB, object>, Converter<object, TB>>> _converters
+        private readonly ConcurrentDictionary<Type, Tuple<Converter<TB, object>, Converter<object, TB>>> _converters
             = new ConcurrentDictionary<Type, Tuple<Converter<TB, object>, Converter<object, TB>>>();
 
         public void Add<TA>([NotNull] Converter<TA, TB> a, [NotNull] Converter<TB, TA> b)

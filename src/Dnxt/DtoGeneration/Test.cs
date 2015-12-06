@@ -2,7 +2,7 @@
 {
     public class Test
     {
-        interface IFoo
+        private interface IFoo
         {
             int A { get; }
             string B { get; }

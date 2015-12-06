@@ -6,8 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dnxt.Extensions;
 using Dnxt.Logging;
-using Dnxt.RxAsync;
-using Dnxt.RxAsync.Subjects;
 using JetBrains.Annotations;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
