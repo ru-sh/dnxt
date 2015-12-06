@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
+using Dnxt.DtoGeneration;
 using JetBrains.Annotations;
 
-namespace Dnxt.DtoGeneration
+namespace Dnxt
 {
 #if DOTNET5_4
     public delegate TB Converter<in TA, out TB>(TA a);

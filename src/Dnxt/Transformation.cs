@@ -3,9 +3,10 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Dnxt.Extensions;
 using JetBrains.Annotations;
 
-namespace Dnxt.DtoGeneration
+namespace Dnxt
 {
     public class Transformation<T>
     {
@@ -41,17 +42,19 @@ namespace Dnxt.DtoGeneration
             return name;
         }
 
-        public T Apply(T obj)
+        public T Apply([NotNull] T obj)
         {
-            var constructors = _type.GetConstructors(BindingFlags.Public);
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            var type = obj.GetType();
+            var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
             var constructor = constructors.First();
             var constructorParams = constructor.GetParameters();
             var props = _type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var args = constructorParams
-                .Select(info =>  new
+                .Select(arg => new
                 {
-                    info.Name,
-                    Prop = props.FirstOrDefault(prop => string.Equals(prop.Name, info.Name, StringComparison.CurrentCultureIgnoreCase) && prop.PropertyType == info.ParameterType)
+                    Name = arg.Name.ToPascalCase(),
+                    Prop = props.FirstOrDefault(prop => string.Equals(prop.Name, arg.Name.ToPascalCase()) && prop.PropertyType == arg.ParameterType)
                 }).ToList();
 
             var notFound = args.Where(pair => pair.Prop == null).ToList();
@@ -62,12 +65,16 @@ namespace Dnxt.DtoGeneration
                 throw new PropertyNotFound(first.Name);
             }
 
-            var values = args.Select(pair => pair.Prop.GetGetMethod().Invoke(obj, null)).ToArray();
+            var values = args
+                .Select(x => _setters.ContainsKey(x.Name)
+                    ? _setters[x.Name]
+                    : x.Prop.GetGetMethod().Invoke(obj, null))
+                .ToArray();
 
             var updated = constructor.Invoke(values);
-            return (T) updated;
+            return (T)updated;
         }
-
+        
         public class PropertyNotFound : Exception
         {
             public PropertyNotFound(string name) : base(name)
