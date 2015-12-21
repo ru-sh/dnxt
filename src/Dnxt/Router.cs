@@ -18,7 +18,7 @@ namespace Dnxt
             _func = async arg =>
             {
                 Console.WriteLine($"Arg: {arg}");
-                var tasks = routers.Select(router => router.TryGetMatchingHandler(arg));
+                var tasks = routers.Select(router => router.FindHandler(arg));
                 var actions = await Task.WhenAll(tasks);
                 var matched = actions.FirstOrDefault(action => action != null);
                 //var s = string.Join(", ", actions.Select((action, i) => $"{i} {action != null}"));
@@ -57,7 +57,7 @@ namespace Dnxt
         {
             AsyncAction<TArg> handler = async (arg, token) =>
             {
-                var action = await TryGetMatchingHandler(arg) ?? (tkn => def(arg, tkn));
+                var action = await FindHandler(arg) ?? (tkn => def(arg, tkn));
                 await action(token);
             };
 
@@ -66,7 +66,7 @@ namespace Dnxt
 
         [NotNull]
         [ItemCanBeNull]
-        public Task<AsyncAction> TryGetMatchingHandler(TArg msg)
+        public Task<AsyncAction> FindHandler(TArg msg)
         {
             return _func(msg);
         }

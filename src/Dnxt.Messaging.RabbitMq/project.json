@@ -5,7 +5,8 @@
   "tags": [ "" ],
   "version": "1.0.1",
   "dependencies": {
-    "Dnxt": "1.0.1"
+    "Dnxt": "1.0.1",
+    "Dnxt.Logging": "1.0.0-*"
   },
   "description": "Dnxt.Messaging.Rabbit Class Library",
   "frameworks": {
@@ -16,6 +17,7 @@
     },
     "dotnet5.4": {
       "dependencies": {
+        "RabbitMQ.Client.CoreClrUnofficial": "3.5.6.1"
       }
     }
   }

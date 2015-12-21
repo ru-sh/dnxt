@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Dnxt.DtoGeneration;
 using JetBrains.Annotations;
 
 namespace Dnxt
 {
-#if DOTNET5_4
+#if DOTNET5_4 || DNXCORE50
     public delegate TB Converter<in TA, out TB>(TA a);
 #endif
 

@@ -1,6 +1,4 @@
 ﻿using System;
-using Dnxt.Logging;
-using Dnxt.Properties;
 using JetBrains.Annotations;
 
 namespace Dnxt.Environmenting
@@ -9,16 +7,13 @@ namespace Dnxt.Environmenting
     {
         [CanBeNull] private readonly string _appDataFolderPath;
 
-        public Environment(string appDataFolderPath = null, IDateTimeProvider dateTime = null, ILogger logger = null)
+        public Environment(string appDataFolderPath = null, IDateTimeProvider dateTime = null)
         {
             _appDataFolderPath = appDataFolderPath;
             DateTime = dateTime ?? new DefaultDateTimeProvider();
-            var consoleLogObserver = new ConsoleLogObserver();
-            Logger = logger ?? new Logger(consoleLogObserver, DateTime);
         }
 
         public IDateTimeProvider DateTime { get; }
-        public ILogger Logger { get; }
 
         public string AppDataFolderPath
         {
@@ -35,7 +30,6 @@ namespace Dnxt.Environmenting
 
         public void Dispose()
         {
-            Logger.Dispose();
         }
     }
 }

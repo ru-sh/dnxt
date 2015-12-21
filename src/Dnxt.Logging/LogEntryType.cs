@@ -3,6 +3,8 @@
     public enum LogEntryType
     {
         Debug,
-        Exception
+        Exception,
+        Start,
+        Finish,
     }
 }

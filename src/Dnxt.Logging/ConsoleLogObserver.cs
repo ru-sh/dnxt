@@ -1,9 +1,10 @@
 ﻿using System;
 using Dnxt.Logging;
+using Dnxt.Logging.Serializers;
 using Dnxt.Serialization;
 using JetBrains.Annotations;
 
-namespace Dnxt.Properties
+namespace Dnxt.Logging
 {
     public class ConsoleLogObserver : IObserver<LogEntry>
     {

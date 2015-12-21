@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using JetBrains.Annotations;
 
-namespace Dnxt.DtoGeneration
+namespace Dnxt
 {
     public class ConvertersCollection<TB>
     {

@@ -1,5 +1,4 @@
 ﻿using Dnxt.Environmenting;
-using Dnxt.Logging;
 using JetBrains.Annotations;
 
 namespace Dnxt
@@ -8,9 +7,6 @@ namespace Dnxt
     {
         [NotNull]
         IDateTimeProvider DateTime { get; }
-
-        [NotNull]
-        ILogger Logger { get; }
 
         [NotNull]
         string AppDataFolderPath { get; }

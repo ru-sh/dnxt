@@ -1,20 +1,19 @@
 ﻿using System.Threading.Tasks;
-using Dnxt.RxAsync;
 using JetBrains.Annotations;
 
 namespace Dnxt
 {
-    public interface IRouter<in TIn, TOut> : IAsyncFunc<TOut>
+    public interface IRouter<in TIn, TOut>
     {
         [NotNull]
         [ItemCanBeNull]
-        Task<AsyncAction<TOut>> GetHandler(TIn msg);
+        Task<AsyncAction<TOut>> FindHandler(TIn msg);
     }
 
     public interface IRouter<in TIn>
     {
         [NotNull]
         [ItemCanBeNull]
-        Task<AsyncAction> TryGetMatchingHandler(TIn msg);
+        Task<AsyncAction> FindHandler(TIn msg);
     }
 }

@@ -16,6 +16,24 @@ namespace Dnxt.RxAsync
             var lambdaObserver = new LambdaObserver<T>(action);
             return observable.Subscribe(lambdaObserver);
         }
+
+        public static IAsyncObservable<T> Where<T>(this IAsyncObservable<T> source, Predicate<T> predicate)
+        {
+            var subj = new Subjects.SequentSubject<T>();
+            var obs = new LambdaObserver<T>((obj, token) =>
+            {
+                if (!token.IsCancellationRequested && predicate(obj))
+                {
+                    return subj.OnNext(obj, token);
+                }
+
+                return Task.FromResult(true);
+            });
+
+            source.Subscribe(obs);
+
+            return subj;
+        }
     }
 
     public class LambdaObserver<T> : IAsyncObserver<T>
