@@ -1,4 +1,5 @@
 ﻿using System;
+using Dnxt.Parsing;
 
 namespace Dnxt.UnitTests
 {
