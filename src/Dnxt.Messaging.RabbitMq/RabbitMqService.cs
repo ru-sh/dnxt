@@ -40,7 +40,7 @@ namespace Dnxt.Messaging.Rabbit
         }
 
 
-        public async Task Connect([NotNull] Dictionary<MessageQueue, Action<BasicDeliverEventArgs>> rxQueues, CancellationToken token, [NotNull] ILogger logger)
+        public async Task ConnectAsync([NotNull] Dictionary<MessageQueue, Action<BasicDeliverEventArgs>> rxQueues, CancellationToken token, [NotNull] ILogger logger)
         {
             if (rxQueues == null) throw new ArgumentNullException(nameof(rxQueues));
             if (logger == null) throw new ArgumentNullException(nameof(logger));
