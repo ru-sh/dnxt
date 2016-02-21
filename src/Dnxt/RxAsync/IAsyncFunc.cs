@@ -7,4 +7,9 @@ namespace Dnxt.RxAsync
     {
         Task<TOut> Process(CancellationToken token);
     }
+
+    public interface IAsyncFunc<in TIn, TOut>
+    {
+        Task<TOut> InvokeAsync(TIn arg, CancellationToken cancellation);
+    }
 }

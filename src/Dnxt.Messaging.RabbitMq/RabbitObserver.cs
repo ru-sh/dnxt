@@ -23,7 +23,7 @@ namespace Dnxt.Messaging.Rabbit
             channel.QueueDeclare(queueName, durable, exclusive, autoDelete, arguments);
         }
 
-        public Task OnNext(byte[] msg, CancellationToken token)
+        public Task OnNextAsync(byte[] msg, CancellationToken token)
         {
             return Task.Factory.StartNew(() =>
             {
@@ -34,12 +34,12 @@ namespace Dnxt.Messaging.Rabbit
             });
         }
 
-        public Task OnError(Exception e, CancellationToken token)
+        public Task OnErrorAsync(Exception e, CancellationToken token)
         {
             return Task.FromResult(1);
         }
 
-        public Task OnCompleted(CancellationToken token)
+        public Task OnCompletedAsync(CancellationToken token)
         {
             return Task.FromResult(1);
         }

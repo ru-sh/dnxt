@@ -1,6 +1,6 @@
 using System;
 
-namespace Dnxt.Parsing
+namespace Dnxt.UnitTests
 {
     public class BankEvent
     {

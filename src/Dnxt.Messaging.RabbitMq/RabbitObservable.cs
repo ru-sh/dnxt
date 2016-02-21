@@ -55,7 +55,7 @@ namespace Dnxt.Messaging.Rabbit
                 }
 
                 var body = e.Body;
-                _subject.OnNext(body, CancellationToken.None).ContinueWith(t =>
+                _subject.OnNextAsync(body, CancellationToken.None).ContinueWith(t =>
                 {
                     if (t.IsFaulted)
                     {

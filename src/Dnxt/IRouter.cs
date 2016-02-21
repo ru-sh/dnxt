@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace Dnxt
@@ -7,13 +8,13 @@ namespace Dnxt
     {
         [NotNull]
         [ItemCanBeNull]
-        Task<AsyncAction<TOut>> FindHandler(TIn msg);
+        Task<AsyncFunc<TOut>> FindHandlerAsync(TIn args, CancellationToken cancellation);
     }
 
     public interface IRouter<in TIn>
     {
         [NotNull]
         [ItemCanBeNull]
-        Task<AsyncAction> FindHandler(TIn msg);
+        Task<AsyncAction> FindHandler(TIn msg, CancellationToken cancellation);
     }
 }

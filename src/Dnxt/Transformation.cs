@@ -4,6 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Dnxt.Extensions;
+using Dnxt.Parsing;
+using Dnxt.Reflection;
 using JetBrains.Annotations;
 
 namespace Dnxt
@@ -75,30 +77,33 @@ namespace Dnxt
             var type = typeof(T);
             var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
             var getters = props.Select(prop => new KeyValuePair<PropertyInfo, Func<T, object>>(prop, GetPropGetter(prop, setters)));
-            var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+            var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
+                .Select(info => new Constructor(info, info.GetParameters()));
             var matchedCtor = constructors
                 .Select(ctor => new { ctor, argsGetter = GetArgsGetter(ctor, getters) })
                 .FirstOrDefault(arg => arg.argsGetter.All(argGetter => argGetter != null));
 
             if (matchedCtor == null)
             {
-                throw new MatchedConstructorNotFound();
+                var ctors = constructors.Select(ctor => ctor.Parameters.Select(info => info.Name).ToList());
+                var args = setters.Select(pair => pair.Key).ToList();
+                throw new MatchConstructorNotFound(args, ctors);
             }
 
             return obj =>
             {
                 var arg = matchedCtor.argsGetter.Select(func => func(obj)).ToArray();
                 var ctor = matchedCtor.ctor;
-                var newInst = ctor.Invoke(arg);
+                var newInst = ctor.ConstructorInfo.Invoke(arg);
                 return (T)newInst;
             };
         }
 
         private static IEnumerable<Func<T, object>> GetArgsGetter(
-            [NotNull]ConstructorInfo ctor,
+            [NotNull]Constructor ctor,
             [NotNull]IEnumerable<KeyValuePair<PropertyInfo, Func<T, object>>> getters)
         {
-            var constructorParams = ctor.GetParameters();
+            var constructorParams = ctor.Parameters;
 
             var argsGetters = constructorParams
                 .Select(arg => new
@@ -150,9 +155,5 @@ namespace Dnxt
             var updated = transformer.Invoke(obj);
             return updated;
         }
-    }
-
-    public class MatchedConstructorNotFound : Exception
-    {
     }
 }
