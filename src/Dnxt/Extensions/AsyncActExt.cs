@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Dnxt.Extensions
 {
-    public static class Ext
+    public static class AsyncActExt
     {
         public static AsyncFunc<TOut> SetArg<TIn, TOut>([NotNull] this AsyncFunc<TIn, TOut> func, TIn arg)
         {

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Dnxt.Environmenting;
 using Dnxt.Logging;
 using Dnxt.Messaging.Rabbit;
-using Dnxt.Properties;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -38,7 +37,7 @@ namespace Dnxt.Tests
             var provider = new RabbitMqService(connectionFactory, logger);
             var cts = new CancellationTokenSource();
 
-            provider.Connect(consumers, cts.Token, logger);
+            await provider.Connect(consumers, cts.Token, logger);
 
             await provider.Send(new SendingMessage(new PublicationAddress("d", "test", ""), Encoding.UTF8.GetBytes("Hi! Test!")));
             var tcs = new TaskCompletionSource<object>();

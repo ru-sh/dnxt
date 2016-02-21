@@ -7,7 +7,7 @@
   "licenseUrl": "",
 
   "dependencies": {
-
+    "Newtonsoft.Json": "8.0.2"
   },
 
   "frameworks": {

@@ -1,7 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
-
-namespace Dnxt.Serialization
+﻿namespace Dnxt.Serialization
 {
     public interface ISerializer<in T>
     {
@@ -10,6 +7,6 @@ namespace Dnxt.Serialization
 
     public interface IDeserializer<out T>
     {
-        T Deserialize(string obj);
+        T Deserialize(string str);
     }
 }

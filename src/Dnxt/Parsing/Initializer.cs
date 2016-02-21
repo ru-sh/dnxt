@@ -6,47 +6,54 @@ using JetBrains.Annotations;
 
 namespace Dnxt.Parsing
 {
-    public class Initializer<T>
+    public class Initializer<T> : Initializer
     {
+        public Initializer() : base(typeof(T))
+        {
+        }
+    }
+
+    public class Initializer
+    {
+        [NotNull]
         public readonly IReadOnlyCollection<Constructor> Constructors;
 
-        public Initializer()
+        public Initializer(Type type)
         {
-            var type = typeof(T);
             var constructors = type.GetConstructors();
             Constructors = constructors.Select(info => new Constructor(info, info.GetParameters())).ToList();
         }
 
-        public T Initialize(Dictionary<string, object> parameters)
+        [CanBeNull]
+        public Constructor GetConstructor([NotNull] IReadOnlyCollection<string> paramNames)
         {
-            var matchCtor = Constructors.FirstOrDefault(tuple =>
-                tuple.Parameters.All(paramInfo => parameters.ContainsKey(paramInfo.Name)));
+            if (paramNames == null) throw new ArgumentNullException(nameof(paramNames));
 
-            if (matchCtor != null)
-            {
-                var enumerable = matchCtor.Parameters.Select(param => parameters[param.Name]);
-            }
+            var constructor = Constructors
+                .OrderByDescending(c => c.Parameters.Count)
+                .FirstOrDefault(c => c.Parameters.All(info => paramNames.Contains(info.Name)));
 
-            throw new NotImplementedException();
-        }
-
-        public class Constructor
-        {
-            public Constructor([NotNull] ConstructorInfo constructorInfo,
-                [NotNull] IReadOnlyCollection<ParameterInfo> parameters)
-            {
-                if (constructorInfo == null) throw new ArgumentNullException(nameof(constructorInfo));
-                if (parameters == null) throw new ArgumentNullException(nameof(parameters));
-
-                ConstructorInfo = constructorInfo;
-                Parameters = parameters;
-            }
-
-            [NotNull]
-            public ConstructorInfo ConstructorInfo { get; private set; }
-
-            [NotNull]
-            public IReadOnlyCollection<ParameterInfo> Parameters { get; private set; }
+            return constructor;
         }
     }
+
+    public class Constructor
+    {
+        public Constructor([NotNull] ConstructorInfo constructorInfo,
+            [NotNull] IReadOnlyCollection<ParameterInfo> parameters)
+        {
+            if (constructorInfo == null) throw new ArgumentNullException(nameof(constructorInfo));
+            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+
+            ConstructorInfo = constructorInfo;
+            Parameters = parameters;
+        }
+
+        [NotNull]
+        public ConstructorInfo ConstructorInfo { get; }
+
+        [NotNull]
+        public IReadOnlyCollection<ParameterInfo> Parameters { get; }
+    }
+
 }

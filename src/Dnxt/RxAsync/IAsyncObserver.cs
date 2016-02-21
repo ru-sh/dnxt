@@ -8,12 +8,12 @@ namespace Dnxt.RxAsync
     public interface IAsyncObserver<in TIn>
     {
         [NotNull]
-        Task OnNext(TIn msg, CancellationToken token);
+        Task OnNextAsync(TIn msg, CancellationToken token);
 
         [NotNull]
-        Task OnError(Exception e, CancellationToken token);
+        Task OnErrorAsync(Exception e, CancellationToken token);
 
         [NotNull]
-        Task OnCompleted(CancellationToken token);
+        Task OnCompletedAsync(CancellationToken token);
     }
 }

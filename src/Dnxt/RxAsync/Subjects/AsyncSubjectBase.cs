@@ -12,19 +12,19 @@ namespace Dnxt.RxAsync.Subjects
         [ItemNotNull]
         readonly LinkedList<IAsyncObserver<T>> _observers = new LinkedList<IAsyncObserver<T>>();
 
-        public Task OnNext(T msg, CancellationToken token)
+        public Task OnNextAsync(T msg, CancellationToken token)
         {
-            return ForAll(_observers, (observer, cancellationToken) => observer.OnNext(msg, cancellationToken), token);
+            return ForAll(_observers, (observer, cancellationToken) => observer.OnNextAsync(msg, cancellationToken), token);
         }
 
-        public Task OnError(Exception e, CancellationToken token)
+        public Task OnErrorAsync(Exception e, CancellationToken token)
         {
-            return ForAll(_observers, (observer, cancellationToken) => observer.OnError(e, cancellationToken), token);
+            return ForAll(_observers, (observer, cancellationToken) => observer.OnErrorAsync(e, cancellationToken), token);
         }
 
-        public Task OnCompleted(CancellationToken token)
+        public Task OnCompletedAsync(CancellationToken token)
         {
-            return ForAll(_observers, (observer, cancellationToken) => observer.OnCompleted(token), token);
+            return ForAll(_observers, (observer, cancellationToken) => observer.OnCompletedAsync(token), token);
         }
 
         protected abstract Task ForAll(
@@ -51,7 +51,7 @@ namespace Dnxt.RxAsync.Subjects
 
         public void Dispose()
         {
-            OnCompleted(CancellationToken.None).Wait();
+            OnCompletedAsync(CancellationToken.None).Wait();
 
             lock (_observers)
             {

@@ -24,7 +24,7 @@ namespace Dnxt.RxAsync
             {
                 if (!token.IsCancellationRequested && predicate(obj))
                 {
-                    return subj.OnNext(obj, token);
+                    return subj.OnNextAsync(obj, token);
                 }
 
                 return Task.FromResult(true);
@@ -46,17 +46,17 @@ namespace Dnxt.RxAsync
             _action = action;
         }
 
-        public Task OnNext(T msg, CancellationToken token)
+        public Task OnNextAsync(T msg, CancellationToken token)
         {
             return _action(msg, token);
         }
 
-        public Task OnError(Exception e, CancellationToken token)
+        public Task OnErrorAsync(Exception e, CancellationToken token)
         {
             return Task.FromResult(true);
         }
 
-        public Task OnCompleted(CancellationToken token)
+        public Task OnCompletedAsync(CancellationToken token)
         {
             return Task.FromResult(true);
         }

@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace Dnxt.DtoGeneration
 {
-    public class PropModel
+    public class PropertyModel
     {
-        public PropModel([NotNull] string name, [NotNull] Type type, [NotNull] Attribute[] attributes)
+        public PropertyModel([NotNull] string name, [NotNull] Type type, [NotNull] IReadOnlyCollection<object> attributes)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
             if (type == null) throw new ArgumentNullException(nameof(type));
@@ -16,8 +17,13 @@ namespace Dnxt.DtoGeneration
             Attributes = attributes;
         }
 
+        [NotNull]
         public string Name { get; }
+
+        [NotNull]
         public Type Type { get; }
-        public Attribute[] Attributes { get; }
+
+        [NotNull]
+        public IReadOnlyCollection<object> Attributes { get; }
     }
 }
