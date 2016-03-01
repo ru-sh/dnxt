@@ -1,0 +1,35 @@
+﻿{
+  "version": "1.0.0-*",
+  "description": "Web30.Tests Console Application",
+  "authors": [ "Ruslan" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+
+  "compilationOptions": {
+    "emitEntryPoint": true
+  },
+
+  "dependencies": {
+    "NUnitLite": "3.0.1",
+    "Dnxt": "1.0.1-*",
+    "Dnxt.DtoGeneration": "1.0.1-*",
+    "Dnxt.Logging": "1.0.0-*"
+  },
+
+  "commands": {
+    "tests": "Dnxt.DtoGeneration.Tests"
+  },
+
+  "frameworks": {
+    "dnxcore50": {
+      "dependencies": {
+        "Microsoft.CSharp": "4.0.1-beta-23516",
+        "System.Collections": "4.0.11-beta-23516",
+        "System.Console": "4.0.0-beta-23516",
+        "System.Linq": "4.0.1-beta-23516",
+        "System.Threading": "4.0.11-beta-23516"
+      }
+    }
+  }
+}

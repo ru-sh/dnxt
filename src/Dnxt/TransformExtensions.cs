@@ -44,9 +44,9 @@ namespace Dnxt
             }
 
             [NotNull]
-            public TransformationContext<T> Set<TF>(Expression<Func<T, TF>> propGetter, Func<T, TF> val)
+            public TransformationContext<T> Set<TF>(Expression<Func<T, TF>> propGetter, Func<T, TF> f)
             {
-                return new TransformationContext<T>(_transformation.Set(propGetter, val), _original);
+                return new TransformationContext<T>(_transformation.Set(propGetter, f), _original);
             }
 
             public T Apply()

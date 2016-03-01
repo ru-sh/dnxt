@@ -65,9 +65,9 @@ namespace Dnxt
             return handler;
         }
 
-        public Task<AsyncAction> FindHandler(TArg msg, CancellationToken cancellation)
+        public Task<AsyncAction> FindHandler(TArg arg, CancellationToken cancellation)
         {
-            return _func(msg, cancellation);
+            return _func(arg, cancellation);
         }
     }
 }

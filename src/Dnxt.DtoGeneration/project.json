@@ -5,11 +5,13 @@
   "tags": [ "" ],
   "projectUrl": "",
   "licenseUrl": "",
-  "frameworks": {
-    "net451": { }
-  },
   "dependencies": {
     "Dnxt": "1.0.1-*",
     "Dnxt.Logging": "1.0.0-*"
+  },
+  "frameworks": {
+    "net451": { },
+    "dnxcore50": {
+    }
   }
 }
