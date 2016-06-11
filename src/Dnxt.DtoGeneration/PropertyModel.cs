@@ -4,26 +4,50 @@ using JetBrains.Annotations;
 
 namespace Dnxt.DtoGeneration
 {
-    public class PropertyModel
+    public class PropertyModel<T> : PropertyModel
     {
-        public PropertyModel([NotNull] string name, [NotNull] Type type, [NotNull] IReadOnlyCollection<object> attributes)
+        public PropertyModel([NotNull] string name, IReadOnlyCollection<object> attributes = null, Visibility visibility = Visibility.Public)
+            : base(name, typeof(T), attributes, visibility)
+        {
+        }
+    }
+
+    public class PropertyModel : IPropertyModel
+    {
+        public PropertyModel([NotNull] string name, [NotNull] Type type, IReadOnlyCollection<object> attributes = null, Visibility visibility = Visibility.Public)
+            : this(name, type.FullName, attributes, visibility)
+        { }
+
+        public PropertyModel(
+            [NotNull] string name,
+            [NotNull] string typeFullName,
+            IReadOnlyCollection<object> attributes = null,
+            Visibility visibility = Visibility.Public,
+            bool hasGetter = true,
+            bool hasSetter = false)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
-            if (type == null) throw new ArgumentNullException(nameof(type));
-            if (attributes == null) throw new ArgumentNullException(nameof(attributes));
+            if (typeFullName == null) throw new ArgumentNullException(nameof(typeFullName));
 
             Name = name;
-            Type = type;
-            Attributes = attributes;
+            TypeFullName = typeFullName;
+            Attributes = attributes ?? new object[0];
+            Visibility = visibility;
+            HasGetter = hasGetter;
+            HasSetter = hasSetter;
         }
 
         [NotNull]
         public string Name { get; }
 
         [NotNull]
-        public Type Type { get; }
+        public string TypeFullName { get; }
 
         [NotNull]
         public IReadOnlyCollection<object> Attributes { get; }
+
+        public Visibility Visibility { get; }
+        public bool HasGetter { get; }
+        public bool HasSetter { get; }
     }
 }

@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Dnxt
 {
-#if DOTNET5_4 || DNXCORE50
+#if CORECLR
     public delegate TB Converter<in TA, out TB>(TA a);
 #endif
 

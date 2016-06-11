@@ -1,32 +1,33 @@
 ﻿{
-  "version": "1.0.1-*",
-  "description": "Common Class Library",
-  "authors": [ "Ruslan_Shakirov" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
+	"version" : "0.1.1-rc2",
+	"description" : "DotNet Extensions",
+	"packOptions" : {
+		"tags" : ["DotNet Extensions"],
+		"projectUrl" : "https://github.com/ru-sh/dnxt"
+	},
 
   "dependencies": {
-    "Newtonsoft.Json": "8.0.2"
+    "JetBrains.Annotations": "10.1.4"
   },
 
-  "frameworks": {
-    "net451": {
-      "frameworkAssemblies": {
-      },
-      "dependencies": {
-      }
-    },
-    "dotnet5.4": {
-      "dependencies": {
-        "System.Collections.Concurrent": "4.0.11-*",
-        "System.Collections": "4.0.11-*",
-        "System.Linq": "4.0.1-*",
-        "System.Runtime": "4.0.21-*",
-        "Microsoft.CSharp": "4.0.1-*",
-        "System.Console": "4.0.0-*",
-        "System.Text.RegularExpressions": "4.0.11-*"
-      }
-    }
-  }
+	"frameworks" : {
+
+		"netcoreapp1.0" : {
+			"imports" : [
+				"dotnet5.6",
+				"dnxcore50",
+				"portable-net45+win8"
+			],
+			"buildOptions" : {
+				"define" : ["CORECLR"]
+			},
+			"dependencies" : {
+				"Microsoft.NETCore.App" : {
+					"version" : "1.0.0-rc2-3002702",
+					"type" : "platform"
+				},
+				"Newtonsoft.Json" : "8.0.2"
+			}
+		}
+	}
 }

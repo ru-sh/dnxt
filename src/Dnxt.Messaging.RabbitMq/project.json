@@ -1,24 +1,35 @@
 {
-  "authors": [ "Ruslan_Shakirov" ],
-  "licenseUrl": "",
-  "projectUrl": "",
-  "tags": [ "" ],
-  "version": "1.0.1",
+	"version" : "0.1.1-rc2",
+	"description" : "DotNet Extensions",
+	"packOptions" : {
+		"tags" : ["DotNet Extensions"],
+		"projectUrl" : "https://github.com/ru-sh/dnxt"
+	},
+
   "dependencies": {
-    "Dnxt": "1.0.1",
-    "Dnxt.Logging": "1.0.0-*"
+    "Dnxt": "0.1.1-rc2",
+    "Dnxt.Logging": "0.1.1-rc2",
+    "RabbitMQ.Client.CoreClrUnofficial": "3.6.1.2-rc2"
   },
-  "description": "Dnxt.Messaging.Rabbit Class Library",
-  "frameworks": {
-    "net451": {
-      "dependencies": {
-        "RabbitMQ.Client": "3.5.6"
-      }
-    },
-    "dotnet5.4": {
-      "dependencies": {
-        "RabbitMQ.Client.CoreClrUnofficial": "3.5.6.1"
-      }
-    }
-  }
+
+	"frameworks" : {
+
+		"netcoreapp1.0" : {
+			"imports" : [
+				"dotnet5.6",
+				"dnxcore50",
+				"portable-net45+win8"
+			],
+			"buildOptions" : {
+				"define" : ["CORECLR"]
+			},
+			"dependencies" : {
+				"Microsoft.NETCore.App" : {
+					"version" : "1.0.0-rc2-3002702",
+					"type" : "platform"
+				},
+				"Newtonsoft.Json" : "8.0.2"
+			}
+		}
+	}
 }

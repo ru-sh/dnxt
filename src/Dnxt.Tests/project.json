@@ -1,31 +1,42 @@
 {
-  "version": "1.0.0-*",
-  "description": "Dnxt.Tests Console Application",
-  "authors": [ "Ruslan" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
+	"version" : "0.1.1-rc2",
+	"description" : "DotNet Extensions",
+	"packOptions" : {
+		"tags" : ["DotNet Extensions"],
+		"projectUrl" : "https://github.com/ru-sh/dnxt"
+	},
+
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
 
   "dependencies": {
-    "NUnit": "3.0.0",
-    "Dnxt.Messaging.RabbitMq": "1.0.0-*",
-    "Dnxt": "1.0.0-*"
+    "Dnxt": "0.1.1-rc2",
+    "Dnxt.DtoGeneration": "0.1.1-rc2",
+    "Dnxt.Logging": "0.1.1-rc2",
+    "Dnxt.Messaging.RabbitMq": "0.1.1-rc2",
+    "RabbitMQ.Client.CoreClrUnofficial": "3.6.1.2-rc2",
+    "NUnitLite": "3.2.1"  
   },
 
-  "commands": {
-    "Dnxt.Tests": "Dnxt.Tests"
-  },
+	"frameworks" : {
 
-  "frameworks": {
-    "dnx451": {
-      "dependencies": {
-        "RabbitMQ.Client": "3.5.6"
-      }
-    },
-    "dnxcore50": {
-      "dependencies": {
-        "RabbitMQ.Client.CoreClrUnofficial": "3.5.6"
-      }
-    }
-  }
+		"netcoreapp1.0" : {
+			"imports" : [
+				"dotnet5.6",
+				"dnxcore50",
+				"portable-net45+win8"
+			],
+			"buildOptions" : {
+				"define" : ["CORECLR"]
+			},
+			"dependencies" : {
+				"Microsoft.NETCore.App" : {
+					"version" : "1.0.0-rc2-3002702",
+					"type" : "platform"
+				},
+				"Newtonsoft.Json" : "8.0.2"
+			}
+		}
+	}
 }

@@ -30,25 +30,9 @@ namespace Dnxt
             _transformer = new Lazy<Func<T, T>>(() => GetTransformer(setters));
         }
 
-        //[NotNull]
-        //public Transformation<T> Set<TF>(Expression<Func<T, TF>> propGetter, TF val)
-        //{
-        //    var prop = GetPropName(propGetter);
-        //    if (prop == null)
-        //    {
-        //        throw new InvalidOperationException("Expression should be MemberExpression.");
-        //    }
-
-        //    var setters = new List<KeyValuePair<string, Func<T, object>>>(_setters)
-        //    {
-        //        new KeyValuePair<string, Func<T, object>>(prop, o => val)
-        //    };
-
-        //    return new Transformation<T>(setters);
-        //}
-
         [NotNull]
-        public Transformation<T> Set<TF>(Expression<Func<T, TF>> propGetter, Func<T, TF> val)
+        public Transformation<T> Set<TF, TV>(Expression<Func<T, TF>> propGetter, Func<T, TV> val)
+            where TV : TF
         {
             var prop = GetPropName(propGetter);
             if (prop == null)
@@ -58,7 +42,7 @@ namespace Dnxt
 
             var setters = new List<KeyValuePair<string, Func<T, object>>>(_setters)
             {
-                new KeyValuePair<string, Func<T, object>>(prop, o => val)
+                new KeyValuePair<string, Func<T, object>>(prop, o => val(o))
             };
 
             return new Transformation<T>(setters);
@@ -85,7 +69,7 @@ namespace Dnxt
 
             if (matchedCtor == null)
             {
-                var ctors = constructors.Select(ctor => ctor.Parameters.Select(info => info.Name).ToList());
+                var ctors = constructors.Select(ctor => ctor.Parameters.Select(info => info.Name).ToList()).ToList();
                 var args = setters.Select(pair => pair.Key).ToList();
                 throw new MatchConstructorNotFound(args, ctors);
             }
@@ -119,7 +103,7 @@ namespace Dnxt
                             return null;
                         }
 
-                        var typeEq = arg.ParameterType.IsAssignableFrom(prop.PropertyType);
+                        var typeEq = prop.PropertyType.IsAssignableFrom(arg.ParameterType);
                         if (!typeEq)
                         {
                             return null;

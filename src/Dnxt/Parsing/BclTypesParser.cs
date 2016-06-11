@@ -7,10 +7,17 @@ namespace Dnxt.Parsing
 {
     public class BclTypesParser
     {
-        private static int IntParser(string s)
+        private readonly CultureInfo _cultureInfo;
+
+        public BclTypesParser(CultureInfo cultureInfo = null)
+        {
+            _cultureInfo = cultureInfo ?? CultureInfo.InvariantCulture;
+        }
+
+        private int IntParser(string s)
         {
             int result;
-            if (!int.TryParse(s, out result))
+            if (!int.TryParse(s, NumberStyles.Integer, _cultureInfo, out result))
             {
                 throw new Exception($"{s} is not a number.");
             }
@@ -18,10 +25,10 @@ namespace Dnxt.Parsing
             return result;
         }
 
-        private static double DoubleParser(string s)
+        private double DoubleParser(string s)
         {
             double result;
-            if (!double.TryParse(s, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
+            if (!double.TryParse(s, NumberStyles.AllowDecimalPoint, _cultureInfo, out result))
             {
                 throw new Exception($"{s} is not a double.");
             }
@@ -29,10 +36,10 @@ namespace Dnxt.Parsing
             return result;
         }
 
-        private static decimal DecimalParser(string s)
+        private decimal DecimalParser(string s)
         {
             decimal result;
-            if (!decimal.TryParse(s, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
+            if (!decimal.TryParse(s, NumberStyles.AllowDecimalPoint, _cultureInfo, out result))
             {
                 throw new Exception($"{s} is not a double.");
             }
@@ -40,7 +47,7 @@ namespace Dnxt.Parsing
             return result;
         }
 
-        public static Func<string, object> GetParser(Type type)
+        public Func<string, object> GetParser(Type type)
         {
             if (type == typeof(bool))
             {
@@ -98,31 +105,31 @@ namespace Dnxt.Parsing
                 return s => Enum.Parse(type, s, true);
             }
 
-	        if (typeInfo.IsGenericType && type.GetGenericTypeDefinition() == typeof (Nullable<>))
-	        {
-		        var itemType = type.GetGenericArguments().First();
-		        var subParser = GetParser(itemType);
-		        if (subParser != null)
-		        {
-			        return s => string.IsNullOrWhiteSpace(s) ? null : subParser(s);
-		        }
-	        }
+            if (typeInfo.IsGenericType && type.GetGenericTypeDefinition() == typeof (Nullable<>))
+            {
+                var itemType = type.GetGenericArguments().First();
+                var subParser = GetParser(itemType);
+                if (subParser != null)
+                {
+                    return s => string.IsNullOrWhiteSpace(s) ? null : subParser(s);
+                }
+            }
 			
-			return null;
+            return null;
         }
 
-        public static T Parse<T>(string s)
-        {
-            var type = typeof (T);
-            var parser = GetParser(type);
-            return (T) parser(s);
-        }
-
-        public static Func<string, T> GetParser<T>()
+        public Func<string, T> GetParser<T>()
         {
             var type = typeof (T);
             var parser = GetParser(type);
             return s => (T) parser(s);
+        }
+
+        public  T Parse<T>(string s)
+        {
+            var type = typeof (T);
+            var parser = GetParser(type);
+            return (T) parser(s);
         }
     }
 }

@@ -6,61 +6,39 @@ namespace Dnxt.DtoGeneration
 {
     public class EntityModel
     {
-        [NotNull]
-        private readonly Lazy<IReadOnlyList<PropertyModel>> _properties;
-
-        [NotNull]
-        private readonly Lazy<IReadOnlyList<RefModel>> _references;
-
-        [NotNull]
-        private readonly Lazy<IReadOnlyList<object>> _attributes;
-
-        public EntityModel([NotNull] string name,
-            [NotNull] Lazy<IReadOnlyList<PropertyModel>> properties,
-            [NotNull] Lazy<IReadOnlyList<RefModel>> references,
-            [NotNull] Lazy<IReadOnlyList<object>> attributes)
-        {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (properties == null) throw new ArgumentNullException(nameof(properties));
-            if (references == null) throw new ArgumentNullException(nameof(references));
-            if (attributes == null) throw new ArgumentNullException(nameof(attributes));
-
-            Name = name;
-            _properties = properties;
-            _references = references;
-            _attributes = attributes;
-        }
-
         public EntityModel(
             [NotNull] string name,
-            [NotNull] [ItemNotNull]IReadOnlyList<PropertyModel> properties,
-            [NotNull] [ItemNotNull]IReadOnlyList<RefModel> references,
-            [NotNull] [ItemNotNull]IReadOnlyList<object> attributes)
+            [ItemNotNull]IReadOnlyList<PropertyModel> properties = null,
+            [ItemNotNull]IReadOnlyList<RefModel> references = null,
+            [ItemNotNull]IReadOnlyList<object> attributes = null,
+            Visibility visibility = Visibility.Public)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
-            if (properties == null) throw new ArgumentNullException(nameof(properties));
-            if (references == null) throw new ArgumentNullException(nameof(references));
-            if (attributes == null) throw new ArgumentNullException(nameof(attributes));
 
             Name = name;
-            _properties = new Lazy<IReadOnlyList<PropertyModel>>(() => properties);
-            _references = new Lazy<IReadOnlyList<RefModel>>(() => references);
-            _attributes = new Lazy<IReadOnlyList<object>>(() => attributes);
+
+            Properties = properties ?? new PropertyModel[0];
+            References = references ?? new RefModel[0];
+            Attributes = attributes ?? new object[0];
+
+            Visibility = visibility;
         }
+
+        public Visibility Visibility { get; }
 
         [NotNull]
         public string Name { get; }
 
         [NotNull]
         [ItemNotNull]
-        public IReadOnlyList<PropertyModel> Properties => _properties.Value;
+        public IReadOnlyCollection<PropertyModel> Properties { get; }
 
         [NotNull]
         [ItemNotNull]
-        public IReadOnlyList<RefModel> References => _references.Value;
+        public IReadOnlyCollection<RefModel> References { get; }
 
         [NotNull]
         [ItemNotNull]
-        public IReadOnlyList<object> Attributes => _attributes.Value;
+        public IReadOnlyCollection<object> Attributes { get; }
     }
 }

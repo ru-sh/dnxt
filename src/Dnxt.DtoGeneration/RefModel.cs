@@ -4,26 +4,33 @@ using JetBrains.Annotations;
 
 namespace Dnxt.DtoGeneration
 {
-    public class RefModel
+    public class RefModel : IPropertyModel
     {
-        public RefModel([NotNull] string name, [NotNull] EntityModel entity, [NotNull] IReadOnlyCollection<object> attributes)
+        public RefModel([NotNull] string name, [NotNull] EntityModel entity, IReadOnlyCollection<object> attributes = null, bool hasGetter = true, bool hasSetter = false)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
             if (entity == null) throw new ArgumentNullException(nameof(entity));
-            if (attributes == null) throw new ArgumentNullException(nameof(attributes));
 
             Name = name;
             Entity = entity;
-            Attributes = attributes;
+            Attributes = attributes ?? new object[0];
+            HasGetter = hasGetter;
+            HasSetter = hasSetter;
         }
 
-        [NotNull]
         public string Name { get; }
+
+        public string TypeFullName => Entity.Name;
 
         [NotNull]
         public EntityModel Entity { get; }
 
-        [NotNull]
         public IReadOnlyCollection<object> Attributes { get; }
+
+        public Visibility Visibility { get; }
+
+        public bool HasGetter { get; }
+
+        public bool HasSetter { get; }
     }
 }

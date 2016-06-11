@@ -8,6 +8,8 @@ namespace Dnxt.DtoGeneration
 {
     public class Domain
     {
+        public string Namespace { get; }
+
         [NotNull]
         private readonly Predicate<Type> _isReference;
 
@@ -17,14 +19,15 @@ namespace Dnxt.DtoGeneration
         [NotNull]
         public IReadOnlyDictionary<string, EntityModel> Entities => _entities;
 
-        public Domain([NotNull] Predicate<Type> isReference)
+        public Domain(string @namespace, [NotNull] Predicate<Type> isReference)
         {
+            Namespace = @namespace;
             if (isReference == null) throw new ArgumentNullException(nameof(isReference));
             _isReference = isReference;
             _entities = new Dictionary<string, EntityModel>();
         }
 
-        public Domain AddEntityModel([NotNull] EntityModel entityModel)
+        public Domain AddEntity([NotNull] EntityModel entityModel)
         {
             if (entityModel == null) throw new ArgumentNullException(nameof(entityModel));
 
@@ -32,13 +35,13 @@ namespace Dnxt.DtoGeneration
             return this;
         }
 
-        public EntityModel AddEntityType<T>()
+        public EntityModel AddEntity<T>()
         {
             var type = typeof(T);
-            return AddEntityType(type);
+            return AddEntity(type);
         }
 
-        public EntityModel AddEntityType(Type type)
+        public EntityModel AddEntity(Type type)
         {
             lock (_entities)
             {
@@ -52,47 +55,39 @@ namespace Dnxt.DtoGeneration
                 var propertyInfos = type
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
-                var props = new Lazy<IReadOnlyList<PropertyModel>>(() =>
-                {
-                    return propertyInfos
-                    .Where(info => !_isReference(info.PropertyType))
-                    .Select(info =>
-                    {
-                        var attributes = info.GetCustomAttributes(true).ToArray();
-                        var propModel = new PropertyModel(info.Name, info.PropertyType, attributes);
-                        return propModel;
-                    }).ToList();
-                });
+                var attrs = type.GetTypeInfo().GetCustomAttributes().ToList();
 
-                var refs = new Lazy<IReadOnlyList<RefModel>>(() =>
-                {
-                    return propertyInfos
-                    .Where(info => _isReference(info.PropertyType))
-                    .Select(info =>
-                    {
-                        var attributes = info.GetCustomAttributes(true).ToArray();
-                        var sourceType = info.PropertyType;
-                        var refEntity = AddEntityType(sourceType);
-                        var refModel = new RefModel(info.Name, refEntity, attributes);
-                        return refModel;
-                    }).ToList();
-                });
-
-                var attrs = new Lazy<IReadOnlyList<object>>(
-                    () => type.GetTypeInfo().GetCustomAttributes().ToList());
+                var props = new List<PropertyModel>();
+                var refs = new List<RefModel>();
 
                 var model = new EntityModel(entityName, props, refs, attrs);
                 _entities.Add(entityName, model);
 
-                var refModels = refs.Value; // invoke lazy
-                var propModels = props.Value; // invoke lazy
+                foreach (var info in propertyInfos)
+                {
+                    var attributes = info.GetCustomAttributes(true).ToArray();
+                    var sourceType = info.PropertyType;
+
+                    if (_isReference(info.PropertyType))
+                    {
+                        var refEntity = AddEntity(sourceType);
+                        var refModel = new RefModel(info.Name, refEntity, attributes);
+                        refs.Add(refModel);
+                    }
+                    else
+                    {
+                        var propModel = new PropertyModel(info.Name, info.PropertyType, attributes);
+                        props.Add(propModel);
+                    }
+                }
+
                 return model;
             }
         }
 
         public Domain Transform(
             Predicate<EntityModel> predicate,
-            [NotNull] [ItemNotNull]Transformation<EntityModel> transformation)
+            [NotNull] Transformation<EntityModel> transformation)
         {
             if (predicate == null)
             {
@@ -104,10 +99,19 @@ namespace Dnxt.DtoGeneration
                 throw new ArgumentNullException(nameof(transformation));
             }
 
-            var domain = new Domain(_isReference);
-            foreach (var updated in Entities.Where(pair => predicate(pair.Value)).Select(kv => transformation.Apply(kv.Value)))
+            var domain = new Domain(Namespace, _isReference);
+            foreach (var kv in Entities)
             {
-                domain.AddEntityModel(updated);
+                var entityModel = kv.Value;
+                if (predicate(entityModel))
+                {
+                    var updated = transformation.Apply(entityModel);
+                    domain.AddEntity(updated);
+                }
+                else
+                {
+                    domain.AddEntity(entityModel);
+                }
             }
 
             return domain;
