@@ -13,16 +13,16 @@ namespace Dnxt
     public class Transformation<T>
     {
         [NotNull]
-        private readonly IReadOnlyCollection<KeyValuePair<string, Func<T, object>>> _setters;
+        private readonly IReadOnlyCollection<KeyValuePair<string, Mapping>> _setters;
 
         [NotNull]
         private readonly Lazy<Func<T, T>> _transformer;
 
-        public Transformation() : this(new List<KeyValuePair<string, Func<T, object>>>())
+        public Transformation() : this(new List<KeyValuePair<string, Mapping>>())
         {
         }
 
-        private Transformation([NotNull] IReadOnlyCollection<KeyValuePair<string, Func<T, object>>> setters)
+        private Transformation([NotNull] IReadOnlyCollection<KeyValuePair<string, Mapping>> setters)
         {
             if (setters == null) throw new ArgumentNullException(nameof(setters));
 
@@ -31,7 +31,7 @@ namespace Dnxt
         }
 
         [NotNull]
-        public Transformation<T> Set<TF, TV>(Expression<Func<T, TF>> propGetter, Func<T, TV> val)
+        public Transformation<T> Map<TF, TV>(Expression<Func<T, TF>> propGetter, Expression<Func<T, TV>> mapTo)
             where TV : TF
         {
             var prop = GetPropName(propGetter);
@@ -39,10 +39,12 @@ namespace Dnxt
             {
                 throw new InvalidOperationException("Expression should be MemberExpression.");
             }
+            
+            var expression = Expression.Lambda<Func<T, object>>(Expression.Convert(mapTo.Body, typeof(object)), mapTo.Parameters);
 
-            var setters = new List<KeyValuePair<string, Func<T, object>>>(_setters)
+            var setters = new List<KeyValuePair<string, Mapping>>(_setters)
             {
-                new KeyValuePair<string, Func<T, object>>(prop, o => val(o))
+                new KeyValuePair<string, Mapping>(prop, new Mapping(expression))
             };
 
             return new Transformation<T>(setters);
@@ -56,13 +58,15 @@ namespace Dnxt
             return name;
         }
 
-        public static Func<T, T> GetTransformer(IEnumerable<KeyValuePair<string, Func<T, object>>> setters)
+        public static Func<T, T> GetTransformer(IEnumerable<KeyValuePair<string, Mapping>> setters)
         {
             var type = typeof(T);
             var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var getters = props.Select(prop => new KeyValuePair<PropertyInfo, Func<T, object>>(prop, GetPropGetter(prop, setters)));
+            var getters = props.Select(prop => new KeyValuePair<PropertyInfo, Mapping>(prop, GetPropGetter(prop, setters)));
+
             var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
                 .Select(info => new Constructor(info, info.GetParameters()));
+
             var matchedCtor = constructors
                 .Select(ctor => new { ctor, argsGetter = GetArgsGetter(ctor, getters) })
                 .FirstOrDefault(arg => arg.argsGetter.All(argGetter => argGetter != null));
@@ -76,16 +80,16 @@ namespace Dnxt
 
             return obj =>
             {
-                var arg = matchedCtor.argsGetter.Select(func => func(obj)).ToArray();
+                var arg = matchedCtor.argsGetter.Select(func => func.CompiledFunc(obj)).ToArray();
                 var ctor = matchedCtor.ctor;
                 var newInst = ctor.ConstructorInfo.Invoke(arg);
                 return (T)newInst;
             };
         }
 
-        private static IEnumerable<Func<T, object>> GetArgsGetter(
+        private static IEnumerable<Mapping> GetArgsGetter(
             [NotNull]Constructor ctor,
-            [NotNull]IEnumerable<KeyValuePair<PropertyInfo, Func<T, object>>> getters)
+            [NotNull]IEnumerable<KeyValuePair<PropertyInfo, Mapping>> getters)
         {
             var constructorParams = ctor.Parameters;
 
@@ -117,7 +121,7 @@ namespace Dnxt
             return argsGetters.Select(arg => arg.Getter);
         }
 
-        private static Func<T, object> GetPropGetter([NotNull]PropertyInfo prop, [NotNull]IEnumerable<KeyValuePair<string, Func<T, object>>> setters)
+        private static Mapping GetPropGetter([NotNull]PropertyInfo prop, [NotNull]IEnumerable<KeyValuePair<string, Mapping>> setters)
         {
             var setter = setters.FirstOrDefault(pair => pair.Key == prop.Name);
             if (setter.Key != null)
@@ -125,11 +129,12 @@ namespace Dnxt
                 return setter.Value;
             }
 
-            return o =>
+            Func<object, object> propGetter = o =>
             {
                 var getMethod = prop.GetGetMethod();
                 return getMethod.Invoke(o, null);
             };
+            return new Mapping(arg => propGetter(arg));
         }
 
         public T Apply([NotNull] T obj)
@@ -139,5 +144,34 @@ namespace Dnxt
             var updated = transformer.Invoke(obj);
             return updated;
         }
+
+        public IDictionary<string, Expression<Func<T, object>>> GetMapping()
+        {
+            return _setters.ToDictionary(pair => pair.Key, pair => pair.Value.Expression);
+        }
+
+        public class Mapping
+        {
+            public Mapping(Expression<Func<T, object>> expression)
+            {
+                Expression = expression;
+                CompiledFunc = expression.Compile();
+            }
+
+            public Func<T, object> CompiledFunc { get; }
+            public Expression<Func<T, object>> Expression { get; }
+        }
+    }
+
+    public class TransformationResult<T>
+    {
+        public TransformationResult(IDictionary<string, Expression<Func<T, object>>> mapping, T resultModel)
+        {
+            Mapping = mapping;
+            ResultModel = resultModel;
+        }
+
+        public IDictionary<string, Expression<Func<T, object>>> Mapping { get; }
+        public T ResultModel { get; }
     }
 }

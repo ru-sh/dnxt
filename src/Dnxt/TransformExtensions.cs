@@ -10,14 +10,14 @@ namespace Dnxt
         public static TransformationContext<T> Set<T, TF>([NotNull] this T obj, Expression<Func<T, TF>> fieldGetter, TF newValue)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
-            return new TransformationContext<T>(new Transformation<T>().Set(fieldGetter, o => newValue), obj);
+            return new TransformationContext<T>(new Transformation<T>().Map(fieldGetter, o => newValue), obj);
         }
 
         [NotNull]
-        public static TransformationContext<T> Set<T, TF>([NotNull] this T obj, Expression<Func<T, TF>> fieldGetter, Func<T, TF> newValue)
+        public static TransformationContext<T> Set<T, TF>([NotNull] this T obj, Expression<Func<T, TF>> fieldGetter, Expression<Func<T, TF>> newValue)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
-            return new TransformationContext<T>(new Transformation<T>().Set(fieldGetter, newValue), obj);
+            return new TransformationContext<T>(new Transformation<T>().Map(fieldGetter, newValue), obj);
         }
 
         public class TransformationContext<T>
@@ -40,13 +40,13 @@ namespace Dnxt
             [NotNull]
             public TransformationContext<T> Set<TF>(Expression<Func<T, TF>> propGetter, TF val)
             {
-                return new TransformationContext<T>(_transformation.Set(propGetter, o => val), _original);
+                return new TransformationContext<T>(_transformation.Map(propGetter, o => val), _original);
             }
 
             [NotNull]
-            public TransformationContext<T> Set<TF>(Expression<Func<T, TF>> propGetter, Func<T, TF> val)
+            public TransformationContext<T> Set<TF>(Expression<Func<T, TF>> propGetter, Expression<Func<T, TF>> val)
             {
-                return new TransformationContext<T>(_transformation.Set(propGetter, val), _original);
+                return new TransformationContext<T>(_transformation.Map(propGetter, val), _original);
             }
 
             public T Apply()

@@ -8,15 +8,14 @@ namespace Dnxt.DtoGeneration
     {
         public EntityModel(
             [NotNull] string name,
-            [ItemNotNull]IReadOnlyList<PropertyModel> properties = null,
-            [ItemNotNull]IReadOnlyList<RefModel> references = null,
-            [ItemNotNull]IReadOnlyList<object> attributes = null,
+            [ItemNotNull]IReadOnlyCollection<PropertyModel> properties = null,
+            [ItemNotNull]IReadOnlyCollection<RefModel> references = null,
+            [ItemNotNull]IReadOnlyCollection<object> attributes = null,
             Visibility visibility = Visibility.Public)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));
 
             Name = name;
-
             Properties = properties ?? new PropertyModel[0];
             References = references ?? new RefModel[0];
             Attributes = attributes ?? new object[0];

@@ -1,12 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Dnxt.DtoGeneration
 {
     public class Domain
+    {
+        public Domain(string ns, IReadOnlyDictionary<string, EntityModel> entities)
+        {
+            Namespace = ns;
+            Entities = entities;
+        }
+
+        public string Namespace { get; }
+
+        [NotNull]
+        public IReadOnlyDictionary<string, EntityModel> Entities { get; }
+    }
+
+    public class DomainBuilder
     {
         public string Namespace { get; }
 
@@ -19,7 +34,7 @@ namespace Dnxt.DtoGeneration
         [NotNull]
         public IReadOnlyDictionary<string, EntityModel> Entities => _entities;
 
-        public Domain(string @namespace, [NotNull] Predicate<Type> isReference)
+        public DomainBuilder(string @namespace, [NotNull] Predicate<Type> isReference)
         {
             Namespace = @namespace;
             if (isReference == null) throw new ArgumentNullException(nameof(isReference));
@@ -27,7 +42,7 @@ namespace Dnxt.DtoGeneration
             _entities = new Dictionary<string, EntityModel>();
         }
 
-        public Domain AddEntity([NotNull] EntityModel entityModel)
+        public DomainBuilder AddEntity([NotNull] EntityModel entityModel)
         {
             if (entityModel == null) throw new ArgumentNullException(nameof(entityModel));
 
@@ -85,7 +100,7 @@ namespace Dnxt.DtoGeneration
             }
         }
 
-        public Domain Transform(
+        public IEnumerable<KeyValuePair<EntityModel, TransformationResult<EntityModel>>> Transform(
             Predicate<EntityModel> predicate,
             [NotNull] Transformation<EntityModel> transformation)
         {
@@ -99,22 +114,37 @@ namespace Dnxt.DtoGeneration
                 throw new ArgumentNullException(nameof(transformation));
             }
 
-            var domain = new Domain(Namespace, _isReference);
             foreach (var kv in Entities)
             {
                 var entityModel = kv.Value;
                 if (predicate(entityModel))
                 {
+                    var mapping = transformation.GetMapping();
                     var updated = transformation.Apply(entityModel);
-                    domain.AddEntity(updated);
+                    var tr = new TransformationResult<EntityModel>(mapping, updated);
+                    yield return new KeyValuePair<EntityModel, TransformationResult<EntityModel>>(entityModel, tr);
                 }
                 else
                 {
-                    domain.AddEntity(entityModel);
+                    IDictionary<string, Expression<Func<EntityModel, object>>> mapping = new Dictionary<string, Expression<Func<EntityModel, object>>>()
+                    {
+                        {"Name", model => model.Name },
+                        {"Properties", model => model.Properties },
+                        {"References", model => model.References },
+                        {"Attributes", model => model.Attributes },
+                        {"Visibility", model => model.Visibility },
+                    };
+
+                    var tr = new TransformationResult<EntityModel>(mapping, entityModel);
+                    yield return new KeyValuePair<EntityModel, TransformationResult<EntityModel>>(entityModel, tr);
                 }
             }
+        }
 
-            return domain;
+        public Domain GetDomain()
+        {
+            return new Domain(Namespace, Entities);
         }
     }
+
 }
