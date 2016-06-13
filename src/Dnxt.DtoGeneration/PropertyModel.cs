@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace Dnxt.DtoGeneration
@@ -14,6 +15,10 @@ namespace Dnxt.DtoGeneration
 
     public class PropertyModel : IPropertyModel
     {
+        public PropertyModel([NotNull] string name, [NotNull] EntityModel entityModel, IReadOnlyCollection<object> attributes = null, Visibility visibility = Visibility.Public)
+            : this(name, entityModel.Name, attributes.Concat(new[] { new ReferenceAttribute() { Target = entityModel } }).ToList(), visibility)
+        { }
+
         public PropertyModel([NotNull] string name, [NotNull] Type type, IReadOnlyCollection<object> attributes = null, Visibility visibility = Visibility.Public)
             : this(name, type.FullName, attributes, visibility)
         { }

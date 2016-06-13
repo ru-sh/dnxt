@@ -73,9 +73,8 @@ namespace Dnxt.DtoGeneration
                 var attrs = type.GetTypeInfo().GetCustomAttributes().ToList();
 
                 var props = new List<PropertyModel>();
-                var refs = new List<RefModel>();
-
-                var model = new EntityModel(entityName, props, refs, attrs);
+                
+                var model = new EntityModel(entityName, props, attrs);
                 _entities.Add(entityName, model);
 
                 foreach (var info in propertyInfos)
@@ -86,8 +85,8 @@ namespace Dnxt.DtoGeneration
                     if (_isReference(info.PropertyType))
                     {
                         var refEntity = AddEntity(sourceType);
-                        var refModel = new RefModel(info.Name, refEntity, attributes);
-                        refs.Add(refModel);
+                        var propModel = new PropertyModel(info.Name, refEntity, attributes);
+                        props.Add(propModel);
                     }
                     else
                     {
@@ -130,7 +129,6 @@ namespace Dnxt.DtoGeneration
                     {
                         {"Name", model => model.Name },
                         {"Properties", model => model.Properties },
-                        {"References", model => model.References },
                         {"Attributes", model => model.Attributes },
                         {"Visibility", model => model.Visibility },
                     };

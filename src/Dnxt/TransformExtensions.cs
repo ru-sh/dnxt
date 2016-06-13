@@ -19,7 +19,7 @@ namespace Dnxt
             if (obj == null) throw new ArgumentNullException(nameof(obj));
             return new TransformationContext<T>(new Transformation<T>().Map(fieldGetter, newValue), obj);
         }
-
+        
         public class TransformationContext<T>
         {
             [NotNull]

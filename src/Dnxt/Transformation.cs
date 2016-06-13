@@ -13,21 +13,32 @@ namespace Dnxt
     public class Transformation<T>
     {
         [NotNull]
-        private readonly IReadOnlyCollection<KeyValuePair<string, Mapping>> _setters;
-
+        private readonly IReadOnlyCollection<KeyValuePair<string, Expression<Func<T, object>>>> _setters;
         [NotNull]
         private readonly Lazy<Func<T, T>> _transformer;
+        [NotNull]
+        private readonly IEnumerable<KeyValuePair<PropertyInfo, Expression<Func<T, object>>>> _getters;
+        [NotNull]
+        private readonly IEnumerable<Constructor> _constructors;
 
-        public Transformation() : this(new List<KeyValuePair<string, Mapping>>())
+        public Transformation() : this(new List<KeyValuePair<string, Expression<Func<T, object>>>>())
         {
         }
 
-        private Transformation([NotNull] IReadOnlyCollection<KeyValuePair<string, Mapping>> setters)
+        private Transformation([NotNull] IReadOnlyCollection<KeyValuePair<string, Expression<Func<T, object>>>> setters)
         {
             if (setters == null) throw new ArgumentNullException(nameof(setters));
 
             _setters = setters;
             _transformer = new Lazy<Func<T, T>>(() => GetTransformer(setters));
+
+            var type = typeof(T);
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            _getters = props.Select(prop =>
+                new KeyValuePair<PropertyInfo, Expression<Func<T, object>>>(prop, GetPropGetter(prop, setters)));
+
+            _constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
+                .Select(info => new Constructor(info, info.GetParameters()));
         }
 
         [NotNull]
@@ -39,18 +50,16 @@ namespace Dnxt
             {
                 throw new InvalidOperationException("Expression should be MemberExpression.");
             }
-            
-            var expression = Expression.Lambda<Func<T, object>>(Expression.Convert(mapTo.Body, typeof(object)), mapTo.Parameters);
 
-            var setters = new List<KeyValuePair<string, Mapping>>(_setters)
+            var setters = new List<KeyValuePair<string, Expression<Func<T, object>>>>(_setters)
             {
-                new KeyValuePair<string, Mapping>(prop, new Mapping(expression))
+                new KeyValuePair<string, Expression<Func<T, object>>>(prop, mapTo.ConvertToObject())
             };
 
             return new Transformation<T>(setters);
         }
 
-        private string GetPropName<TF>(Expression<Func<T, TF>> expression)
+        private static string GetPropName<TF>(Expression<Func<T, TF>> expression)
         {
             var memberExpression = expression.Body as MemberExpression;
 
@@ -58,38 +67,31 @@ namespace Dnxt
             return name;
         }
 
-        public static Func<T, T> GetTransformer(IEnumerable<KeyValuePair<string, Mapping>> setters)
+        private Func<T, T> GetTransformer(IEnumerable<KeyValuePair<string, Expression<Func<T, object>>>> setters)
         {
-            var type = typeof(T);
-            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var getters = props.Select(prop => new KeyValuePair<PropertyInfo, Mapping>(prop, GetPropGetter(prop, setters)));
-
-            var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
-                .Select(info => new Constructor(info, info.GetParameters()));
-
-            var matchedCtor = constructors
-                .Select(ctor => new { ctor, argsGetter = GetArgsGetter(ctor, getters) })
+            var matchedCtor = _constructors
+                .Select(ctor => new { ctor, argsGetter = GetArgsGetter(ctor, _getters) })
                 .FirstOrDefault(arg => arg.argsGetter.All(argGetter => argGetter != null));
 
             if (matchedCtor == null)
             {
-                var ctors = constructors.Select(ctor => ctor.Parameters.Select(info => info.Name).ToList()).ToList();
+                var ctors = _constructors.Select(ctor => ctor.Parameters.Select(info => info.Name).ToList()).ToList();
                 var args = setters.Select(pair => pair.Key).ToList();
                 throw new MatchConstructorNotFound(args, ctors);
             }
 
             return obj =>
             {
-                var arg = matchedCtor.argsGetter.Select(func => func.CompiledFunc(obj)).ToArray();
+                var arg = matchedCtor.argsGetter.Select(func => func.Compile().Invoke(obj)).ToArray();
                 var ctor = matchedCtor.ctor;
                 var newInst = ctor.ConstructorInfo.Invoke(arg);
                 return (T)newInst;
             };
         }
 
-        private static IEnumerable<Mapping> GetArgsGetter(
+        private static IEnumerable<Expression<Func<T, object>>> GetArgsGetter(
             [NotNull]Constructor ctor,
-            [NotNull]IEnumerable<KeyValuePair<PropertyInfo, Mapping>> getters)
+            [NotNull]IEnumerable<KeyValuePair<PropertyInfo, Expression<Func<T, object>>>> getters)
         {
             var constructorParams = ctor.Parameters;
 
@@ -121,7 +123,9 @@ namespace Dnxt
             return argsGetters.Select(arg => arg.Getter);
         }
 
-        private static Mapping GetPropGetter([NotNull]PropertyInfo prop, [NotNull]IEnumerable<KeyValuePair<string, Mapping>> setters)
+        private static Expression<Func<T, object>> GetPropGetter(
+            [NotNull]PropertyInfo prop,
+            [NotNull]IEnumerable<KeyValuePair<string, Expression<Func<T, object>>>> setters)
         {
             var setter = setters.FirstOrDefault(pair => pair.Key == prop.Name);
             if (setter.Key != null)
@@ -134,7 +138,7 @@ namespace Dnxt
                 var getMethod = prop.GetGetMethod();
                 return getMethod.Invoke(o, null);
             };
-            return new Mapping(arg => propGetter(arg));
+            return arg => propGetter(arg);
         }
 
         public T Apply([NotNull] T obj)
@@ -147,31 +151,19 @@ namespace Dnxt
 
         public IDictionary<string, Expression<Func<T, object>>> GetMapping()
         {
-            return _setters.ToDictionary(pair => pair.Key, pair => pair.Value.Expression);
-        }
-
-        public class Mapping
-        {
-            public Mapping(Expression<Func<T, object>> expression)
-            {
-                Expression = expression;
-                CompiledFunc = expression.Compile();
-            }
-
-            public Func<T, object> CompiledFunc { get; }
-            public Expression<Func<T, object>> Expression { get; }
+            return _setters.ToDictionary(pair => pair.Key, pair => pair.Value);
         }
     }
 
     public class TransformationResult<T>
     {
-        public TransformationResult(IDictionary<string, Expression<Func<T, object>>> mapping, T resultModel)
+        public TransformationResult(IDictionary<string, Expression<Func<T, object>>> mapping, T result)
         {
             Mapping = mapping;
-            ResultModel = resultModel;
+            Result = result;
         }
 
         public IDictionary<string, Expression<Func<T, object>>> Mapping { get; }
-        public T ResultModel { get; }
+        public T Result { get; }
     }
 }

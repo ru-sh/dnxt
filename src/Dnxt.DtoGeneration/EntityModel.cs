@@ -9,7 +9,6 @@ namespace Dnxt.DtoGeneration
         public EntityModel(
             [NotNull] string name,
             [ItemNotNull]IReadOnlyCollection<PropertyModel> properties = null,
-            [ItemNotNull]IReadOnlyCollection<RefModel> references = null,
             [ItemNotNull]IReadOnlyCollection<object> attributes = null,
             Visibility visibility = Visibility.Public)
         {
@@ -17,7 +16,6 @@ namespace Dnxt.DtoGeneration
 
             Name = name;
             Properties = properties ?? new PropertyModel[0];
-            References = references ?? new RefModel[0];
             Attributes = attributes ?? new object[0];
 
             Visibility = visibility;
@@ -34,10 +32,11 @@ namespace Dnxt.DtoGeneration
 
         [NotNull]
         [ItemNotNull]
-        public IReadOnlyCollection<RefModel> References { get; }
-
-        [NotNull]
-        [ItemNotNull]
         public IReadOnlyCollection<object> Attributes { get; }
+    }
+
+    public class ReferenceAttribute : Attribute
+    {
+        public EntityModel Target { get; set; }
     }
 }

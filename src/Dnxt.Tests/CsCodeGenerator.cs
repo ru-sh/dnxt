@@ -20,7 +20,7 @@ namespace Dnxt.Tests
             var entity = _domain.Entities[name];
             var visibility = GetVisibility(entity.Visibility);
             yield return $"\t{visibility} class {entity.Name} {{ ";
-            var classProps = entity.Properties.Cast<IPropertyModel>().Concat(entity.References).ToList();
+            var classProps = entity.Properties;
             foreach (var p in GenerateCtor(entity, classProps)) yield return "\t\t" + p;
             yield return "";
             foreach (var p in classProps.SelectMany(GetProperty)) yield return "\t\t" + p;
